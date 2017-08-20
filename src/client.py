@@ -1,8 +1,8 @@
 import signal
 import discord
-import json
 import asyncio
-import logging
+
+from utils import loadConfig, setLogging
 
 class DiscClient:
 
@@ -25,28 +25,18 @@ class DiscClient:
     @client.event
     @asyncio.coroutine
     def on_ready():
-        pass
+        logger.info('Client connected.')
 
     @client.event
     @asyncio.coroutine
     def on_message(message):
-        print("on %s %s says:" % (message.server, message.author))
-        print('    %s' % message.content)
+        attachments = message.attachments and '(message contains attachments)' \
+                      or ''
+        print("[%s] %s says:" % (message.server, message.author))
+        print('    %s %s' % (message.clean_content, attachments))
 
 
-def loadConfig():
-    with open('../config.json') as configFile:
-        return json.load(configFile)
-
-def setLogging():
-    logger = logging.getLogger('cliscord')
-    logger.setLevel(logging.ERROR)
-    handler = logging.FileHandler(filename="cliscord.log", encoding="utf-8",
-                                  mode="w")
-    handler.setFormatter(logging.Formatter(
-        '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-
-
+logger = setLogging()
 configs = loadConfig()
 
 mainClient = DiscClient(configs['token'])
