@@ -7,7 +7,7 @@ def loadConfig():
 
 def setLogging():
     logger = logging.getLogger('pyscord')
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
     handler = logging.FileHandler(filename="pyscord.log", encoding="utf-8",
                                   mode="w")
     handler.setFormatter(logging.Formatter(

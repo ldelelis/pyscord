@@ -1,8 +1,10 @@
-import signal
 import discord
 import asyncio
 
 from utils import loadConfig, setLogging
+from interface import MainWindow
+from curses import wrapper
+from signal import getsignal, SIGINT
 
 class DiscClient:
 
@@ -32,17 +34,24 @@ class DiscClient:
     def on_message(message):
         attachments = message.attachments and '(message contains attachments)' \
                       or ''
-        print("[%s] %s says:" % (message.server, message.author))
-        print('    %s %s' % (message.clean_content, attachments))
+        print("[%s] %s says:\r" % (message.server, message.author))
+        print('    %s %s\r' % (message.clean_content, attachments))
 
 
-logger = setLogging()
-configs = loadConfig()
+def mainLoop(stdscr):
 
-mainClient = DiscClient(configs['token'])
-mainClient.runClient()
+    mainScreenObj = MainWindow()
+    global logger
+    logger = setLogging()
+    configs = loadConfig()
+
+    mainClient = DiscClient(configs['token'])
+    mainClient.runClient()
 
 
-while True:
-    if signal.getsignal(signal.SIGINT):
-        mainClient.closeSession()
+    while True:
+        if getsignal(SIGINT):
+            mainClient.closeSession()
+
+if __name__ == "__main__":
+    wrapper(mainLoop)
