@@ -1,5 +1,6 @@
 import curses
 
+
 class BaseWindow:
 
     def __init__(self, xSize=0, ySize=0, delimiterChars=""):
@@ -29,16 +30,10 @@ class MainWindow(BaseWindow):
         self.cursesMainScreen.keypad(True)
         self.cursesMainScreen.box()
 
-    pass
-
 
 class BasePane(BaseWindow):
     pass
 
 
-class ServerPane(BasePane):
-    pass
-
-
-class UsersPane(BasePane):
+class MainPane(BasePane):
     pass

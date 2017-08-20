@@ -6,6 +6,7 @@ from interface import MainWindow
 from curses import wrapper
 from signal import getsignal, SIGINT
 
+
 class DiscClient:
 
     clientToken = None
@@ -18,7 +19,7 @@ class DiscClient:
         connectLoop = asyncio.get_event_loop()
         connectLoop.run_until_complete(self.client.start(self.clientToken,
                                                          bot=False))
-        loop.close()
+        connectLoop.close()
 
     @asyncio.coroutine
     def closeSession(self):
@@ -32,8 +33,8 @@ class DiscClient:
     @client.event
     @asyncio.coroutine
     def on_message(message):
-        attachments = message.attachments and '(message contains attachments)' \
-                      or ''
+        attachments = message.attachments and \
+                      '(message contains attachments)' or ''
         print("[%s] %s says:\r" % (message.server, message.author))
         print('    %s %s\r' % (message.clean_content, attachments))
 
@@ -48,10 +49,10 @@ def mainLoop(stdscr):
     mainClient = DiscClient(configs['token'])
     mainClient.runClient()
 
-
     while True:
         if getsignal(SIGINT):
             mainClient.closeSession()
+
 
 if __name__ == "__main__":
     wrapper(mainLoop)

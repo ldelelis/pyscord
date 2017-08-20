@@ -1,9 +1,11 @@
 import logging
 import json
 
+
 def loadConfig():
     with open('../config.json') as configFile:
         return json.load(configFile)
+
 
 def setLogging():
     logger = logging.getLogger('pyscord')
