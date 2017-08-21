@@ -9,7 +9,7 @@ class BaseWindow:
         self.ySize = ySize
         self.delimiterChars = delimiterChars
 
-    def renderWindow(self):
+    def __renderWindow(self):
         raise NotImplementedError
 
 
@@ -26,8 +26,9 @@ class MainWindow(BaseWindow):
 
     def __init__(self, ySize=0, xSize=0, delimiterChars=['|', '-']):
         BaseWindow.__init__(self, ySize, xSize, delimiterChars)
+        self.__renderWindow()
 
-    def renderWindow(self):
+    def __renderWindow(self):
         self.cursesMainScreen = curses.initscr()
         self.cursesMainScreen.keypad(True)
 
@@ -42,22 +43,30 @@ class RenderableWindow(BaseWindow):
 
     def __init__(self, ySize=0, xSize=0, delimiterChars=['|', '-']):
         BaseWindow.__init__(self, ySize, xSize, delimiterChars)
-        self._renderWindow()
+        self.xOffset = xSize * 0.1
+        self.yOffset = ySize * 0.05
+        self.__renderWindow()
 
-    def _renderWindow(self):
+    def __renderWindow(self):
         self.cursesRenderedWindow = curses.newwin(floor(self.ySize * 0.95),
-                                                  floor(self.xSize * 0.9),
-                                                  floor(self.xSize * 0.01),
-                                                  floor(self.ySize * 0.12))
+                                                  floor(self.xSize * 0.75),
+                                                  floor(self.yOffset),
+                                                  floor(self.xOffset))
         self.cursesRenderedWindow.box()
+
         cursorY, cursorX = self.cursesRenderedWindow.getyx()
         self.cursesRenderedWindow.move(cursorY+1, cursorX+1)
+
         self.cursesRenderedWindow.refresh()
 
-    """
-    TODO: Define a printMessage method to set the cursor to a certain pos
-    and print without going off borders
-    """
+    def printMessage(self, message="", prevAuthor=""):
+        attachments = message.attachments and \
+            '(message contains attachments)' or ''
+
+        if prevAuthor != message.author:
+            print("[%s] %s:\r" % (message.server, message.author))
+
+        print('    %s %s\r' % (message.clean_content, attachments))
 
 
 class RenderablePane(BaseWindow):

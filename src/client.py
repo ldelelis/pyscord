@@ -9,7 +9,6 @@ from signal import getsignal, SIGINT
 
 class DiscClient:
 
-    clientToken = None
     client = discord.Client()
 
     def __init__(self, clientToken):
@@ -21,45 +20,33 @@ class DiscClient:
                                                          bot=False))
         connectLoop.close()
 
-    @asyncio.coroutine
-    def closeSession(self):
+    async def closeSession(self):
         self.client.close()
 
+    async def getLogs(self, channel, limit):
+        await self.client.logs_from(channel, limit)
+
     @client.event
-    @asyncio.coroutine
-    def on_ready():
+    async def on_ready():
         logger.info('Client connected.')
 
     @client.event
-    @asyncio.coroutine
-    def on_message(message, prevAuthor=None):
-        attachments = message.attachments and \
-                      '(message contains attachments)' or ''
+    async def on_message(message):
+        async for loggedMessage in mainClient.client.logs_from(
+                message.channel, 1, before=message):
+            prevAuthor = loggedMessage.author
 
-        if prevAuthor != message.author:
-            print("[%s] %s says:\r" % (message.server, message.author))
-
-        print('    %s %s\r' % (message.clean_content, attachments))
-
-        prevAuthor = message.author  # TODO: fix, doesn't work
-
-        """
-        TODO: implement line checking to avoid scrolling
-        """
+        chatWindowObj.printMessage(message, prevAuthor)
 
 
 def mainLoop(stdscr):
-
     mainScreenObj = MainWindow()
-    mainScreenObj.renderWindow()
     maxY, maxX = mainScreenObj.getMaxAxis()
 
+    global chatWindowObj
     chatWindowObj = RenderableWindow(maxY, maxX)
 
-    global logger
-    logger = setLogging()
-    configs = loadConfig()
-
+    global mainClient
     mainClient = DiscClient(configs['token'])
     mainClient.runClient()
 
@@ -69,4 +56,10 @@ def mainLoop(stdscr):
 
 
 if __name__ == "__main__":
+
+    global logger
+    logger = setLogging()
+
+    configs = loadConfig()
+
     wrapper(mainLoop)
