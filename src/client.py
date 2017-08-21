@@ -1,10 +1,10 @@
 import discord
 import asyncio
+import sys
 
 from utils import loadConfig, setLogging
 from interface import MainWindow, RenderableWindow
 from curses import wrapper
-from signal import getsignal, SIGINT
 
 
 class DiscClient:
@@ -48,11 +48,10 @@ def mainLoop(stdscr):
 
     global mainClient
     mainClient = DiscClient(configs['token'])
-    mainClient.runClient()
-
-    while True:
-        if getsignal(SIGINT):
-            mainClient.closeSession()
+    try:
+        mainClient.runClient()
+    except KeyboardInterrupt:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
