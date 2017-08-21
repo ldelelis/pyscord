@@ -2,7 +2,7 @@ import discord
 import asyncio
 
 from utils import loadConfig, setLogging
-from interface import MainWindow
+from interface import MainWindow, RenderableWindow
 from curses import wrapper
 from signal import getsignal, SIGINT
 
@@ -32,16 +32,30 @@ class DiscClient:
 
     @client.event
     @asyncio.coroutine
-    def on_message(message):
+    def on_message(message, prevAuthor=None):
         attachments = message.attachments and \
                       '(message contains attachments)' or ''
-        print("[%s] %s says:\r" % (message.server, message.author))
+
+        if prevAuthor != message.author:
+            print("[%s] %s says:\r" % (message.server, message.author))
+
         print('    %s %s\r' % (message.clean_content, attachments))
+
+        prevAuthor = message.author  # TODO: fix, doesn't work
+
+        """
+        TODO: implement line checking to avoid scrolling
+        """
 
 
 def mainLoop(stdscr):
 
     mainScreenObj = MainWindow()
+    mainScreenObj.renderWindow()
+    maxY, maxX = mainScreenObj.getMaxAxis()
+
+    chatWindowObj = RenderableWindow(maxY, maxX)
+
     global logger
     logger = setLogging()
     configs = loadConfig()
