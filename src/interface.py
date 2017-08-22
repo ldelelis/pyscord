@@ -12,6 +12,9 @@ class BaseWindow:
     def __renderWindow(self):
         raise NotImplementedError
 
+    def __setCursor(self):
+        raise NotImplementedError
+
 
 class MainWindow(BaseWindow):
 
@@ -40,33 +43,48 @@ class MainWindow(BaseWindow):
 class RenderableWindow(BaseWindow):
 
     cursesRenderedWindow = None
+    cursorYOffset = 0
 
     def __init__(self, ySize=0, xSize=0, delimiterChars=['|', '-']):
         BaseWindow.__init__(self, ySize, xSize, delimiterChars)
-        self.xOffset = xSize * 0.1
-        self.yOffset = ySize * 0.05
+        self.xOffset = floor(xSize * 0.1)
+        self.yOffset = floor(ySize * 0.05)
         self.__renderWindow()
+        self.cursorStartY, self.cursorStartX = self.__setCursor()
 
     def __renderWindow(self):
         self.cursesRenderedWindow = curses.newwin(floor(self.ySize * 0.95),
                                                   floor(self.xSize * 0.75),
-                                                  floor(self.yOffset),
-                                                  floor(self.xOffset))
+                                                  self.yOffset,
+                                                  self.xOffset)
         self.cursesRenderedWindow.box()
 
         cursorY, cursorX = self.cursesRenderedWindow.getyx()
-        self.cursesRenderedWindow.move(cursorY+1, cursorX+1)
 
         self.cursesRenderedWindow.refresh()
+
+    def __setCursor(self):
+        cursorY, cursorX = self.cursesRenderedWindow.getyx()
+        return cursorY + 1, cursorX + 1
 
     def printMessage(self, message="", prevAuthor=""):
         attachments = message.attachments and \
             '(message contains attachments)' or ''
 
         if prevAuthor != message.author:
-            print("[%s] %s:\r" % (message.server, message.author))
+            self.cursesRenderedWindow.addstr(
+                self.cursorStartY+self.cursorYOffset,
+                self.cursorStartX+1,
+                '[%s] %s:\r' % (message.server, message.author))
 
-        print('    %s %s\r' % (message.clean_content, attachments))
+        self.cursesRenderedWindow.addstr(
+            self.cursorStartY+self.cursorYOffset+1,
+            self.cursorStartX+1,
+            '    %s %s\r' % (message.clean_content, attachments))
+
+        self.cursesRenderedWindow.refresh()
+
+        self.cursorYOffset += 2
 
 
 class RenderablePane(BaseWindow):
