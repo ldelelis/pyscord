@@ -20,9 +20,6 @@ class DiscClient:
                                                          bot=False))
         connectLoop.close()
 
-    async def closeSession(self):
-        self.client.close()
-
     async def getLogs(self, channel, limit):
         await self.client.logs_from(channel, limit)
 
@@ -35,8 +32,9 @@ class DiscClient:
         async for loggedMessage in mainClient.client.logs_from(
                 message.channel, 1, before=message):
             prevAuthor = loggedMessage.author
+            prevChannel = loggedMessage.channel.name
 
-        chatWindowObj.printMessage(message, prevAuthor)
+        chatWindowObj.printMessage(message, prevAuthor, prevChannel)
 
 
 def mainLoop(stdscr):
@@ -55,7 +53,6 @@ def mainLoop(stdscr):
 
 
 if __name__ == "__main__":
-
     global logger
     logger = setLogging()
 
