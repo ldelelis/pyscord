@@ -1,2 +1,8 @@
 config.json
 *.log
+bin/
+lib/
+lib64
+pyvenv.cfg
+__pycache__/
+pip-selfcheck.json
