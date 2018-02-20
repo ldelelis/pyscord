@@ -61,7 +61,7 @@ class RenderableWindow(BaseWindow):
         else:
             return False
 
-    def printMessage(self, message="", prevAuthor="", prevChannel=""):
+    def printMessage(self, message, prevAuthor="", prevChannel=""):
         attachments = message.attachments and \
             '(message contains attachments)' or ''
 

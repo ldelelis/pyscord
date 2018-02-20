@@ -4,7 +4,7 @@ import sys
 
 from utils import loadConfig, setLogging
 from interface import MainWindow, RenderableWindow
-from curses import wrapper
+from curses import wrapper, curs_set
 
 
 class DiscClient:
@@ -35,6 +35,7 @@ class DiscClient:
 
 def mainLoop(stdscr):
     stdscr.nodelay(True)
+    curs_set(0)
     mainScreenObj = MainWindow()
     maxY, maxX = mainScreenObj.getMaxAxis()
 
@@ -46,6 +47,7 @@ def mainLoop(stdscr):
     try:
         mainClient.runClient()
     except KeyboardInterrupt:
+        logger.info('Client closed by user interrupt.')
         sys.exit(1)
 
 
