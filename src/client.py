@@ -8,7 +8,6 @@ from curses import wrapper
 
 
 class DiscClient:
-
     client = discord.Client()
 
     def __init__(self, clientToken):
@@ -19,9 +18,6 @@ class DiscClient:
         connectLoop.run_until_complete(self.client.start(self.clientToken,
                                                          bot=False))
         connectLoop.close()
-
-    async def getLogs(self, channel, limit):
-        await self.client.logs_from(channel, limit)
 
     @client.event
     async def on_ready():
@@ -38,6 +34,7 @@ class DiscClient:
 
 
 def mainLoop(stdscr):
+    stdscr.nodelay(True)
     mainScreenObj = MainWindow()
     maxY, maxX = mainScreenObj.getMaxAxis()
 

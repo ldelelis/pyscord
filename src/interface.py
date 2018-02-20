@@ -2,10 +2,9 @@ import curses
 
 
 class BaseWindow:
-    def __init__(self, ySize=0, xSize=0, delimiterChars=""):
-        self.xSize = xSize
-        self.ySize = ySize
-        self.delimiterChars = delimiterChars
+    xSize = None
+    ySize = None
+    position = None
 
     def __renderWindow(self):
         raise NotImplementedError
@@ -15,17 +14,11 @@ class BaseWindow:
 
 
 class MainWindow(BaseWindow):
-    """
-    delimiterChars is currently unusable because doing so would require
-    a huge, very ugly dict remapping of every possible character to its
-    curses binding integer. Or investigating a better method,
-    which I'm not going to do since it's 3 AM.
-    """
-
     cursesMainScreen = None
 
-    def __init__(self, ySize=0, xSize=0, delimiterChars=['|', '-']):
-        BaseWindow.__init__(self, ySize, xSize, delimiterChars)
+    def __init__(self, ySize=0, xSize=0):
+        self.ySize = ySize
+        self.xSize = xSize
         self.__renderWindow()
 
     def __renderWindow(self):
@@ -41,8 +34,9 @@ class RenderableWindow(BaseWindow):
     cursesRenderedWindow = None
     cursorYOffset = 0
 
-    def __init__(self, ySize, xSize, delimiterChars=['|', '-']):
-        BaseWindow.__init__(self, ySize, xSize, delimiterChars)
+    def __init__(self, ySize, xSize):
+        self.ySize = ySize
+        self.xSize = xSize
         self.__renderWindow()
         self.cursesRenderedWindow.scrollok(True)
         self.cursorStartY, self.cursorStartX = self.__setCursor()
@@ -75,7 +69,7 @@ class RenderableWindow(BaseWindow):
 
         if self._shouldScroll(scrollLines):
             self.cursesRenderedWindow.scroll(scrollLines+1)
-            self.cursorYOffset -= 2
+            self.cursorYOffset -= scrollLines + 1
             self.cursesRenderedWindow.refresh()
 
         if prevAuthor != message.author or prevChannel != message.channel.name:
@@ -96,6 +90,20 @@ class RenderableWindow(BaseWindow):
 
 
 class RenderablePane(BaseWindow):
-    def __init__(self, xSize=0, ySize=0, delimiterChars=['|', '-'],
-                 orientation="left"):
-        BaseWindow.__init__(self, xSize, ySize, delimiterChars, orientation)
+    def __init__(self, size=10, position="left"):
+        self.position = position
+        self.size = size
+        self.__renderWindow()
+
+        def setPosition(self):
+            maxY, maxX = self.getMaxAxis()
+            if self.position in ("left", "right"):
+                self.ySize = maxY
+                self.xSize = self.size
+            elif self.position in ("top", "bottom"):
+                self.ySize = self.size
+                self.xSize = maxX
+            pass
+
+        def __renderWindow(self):
+            pass
