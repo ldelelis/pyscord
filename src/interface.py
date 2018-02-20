@@ -53,7 +53,7 @@ class RenderableWindow(BaseWindow):
         return cursorY + 1, cursorX + 1
 
     def _countLines(self, message):
-        return message.clean_content.count("\n") + 1
+        return message.clean_content.count("\n")
 
     def _shouldScroll(self, scrollLines):
         if self.cursorYOffset + scrollLines + 2 >= self.ySize:
@@ -68,8 +68,8 @@ class RenderableWindow(BaseWindow):
         scrollLines = self._countLines(message)
 
         if self._shouldScroll(scrollLines):
-            self.cursesRenderedWindow.scroll(scrollLines+1)
-            self.cursorYOffset -= scrollLines + 1
+            self.cursesRenderedWindow.scroll(scrollLines+2)
+            self.cursorYOffset -= scrollLines + 2
             self.cursesRenderedWindow.refresh()
 
         if prevAuthor != message.author or prevChannel != message.channel.name:
@@ -78,11 +78,12 @@ class RenderableWindow(BaseWindow):
                     self.cursorStartX+1,
                     '[%s][%s] %s:\r' % (message.server, message.channel.name,
                                         message.author))
+                self.cursorYOffset += 1
 
         self.cursesRenderedWindow.addstr(
-            self.cursorStartY+self.cursorYOffset+1,
+            self.cursorStartY+self.cursorYOffset,
             self.cursorStartX+1,
-            '    %s %s\r' % (message.clean_content, attachments))
+            "\t%s %s\r" % (message.clean_content, attachments))
 
         self.cursorYOffset += scrollLines + 1
 
